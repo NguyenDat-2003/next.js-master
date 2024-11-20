@@ -1,5 +1,5 @@
 import Image from 'next/image'
-import ModeToggle from '~/components/ModeToggle'
+import ModeToggle from '~/components/mode-toggle'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 
