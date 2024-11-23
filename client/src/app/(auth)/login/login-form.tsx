@@ -8,9 +8,11 @@ import { Input } from '~/components/ui/input'
 import envConfig from '~/config'
 import { LoginBody, LoginBodyType } from '~/schemaValidations/auth.schema'
 import { useToast } from '~/hooks/use-toast'
+import { useAppContext } from '~/app/AppProvider'
 
 export default function LoginForm() {
   const { toast } = useToast()
+  const { setSessionToken } = useAppContext()
   // 1. Define your form.
   const form = useForm<LoginBodyType>({
     resolver: zodResolver(LoginBody),
@@ -32,22 +34,28 @@ export default function LoginForm() {
         const data = await res.json()
 
         if (!res.ok) {
-          console.log(res.ok)
-          console.log(data)
-
           throw data
         }
-        console.log(res.ok)
-
-        console.log(data)
-
         return data
       })
-      console.log(res)
       toast({
         title: 'Chúc mừng',
-        description: 'Bạn đã đăng nhập thành công'
+        description: res.message
       })
+      const resultFromNextServer = await fetch('http://localhost:3000/api/auth', {
+        method: 'POST',
+        body: JSON.stringify(res),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }).then(async (res) => {
+        const data = await res.json()
+        if (!res.ok) {
+          throw data
+        }
+        return data
+      })
+      setSessionToken(resultFromNextServer.data?.token)
     } catch (error: any) {
       // Khi có error thì sẽ trả về một obj lỗi như này
       // {
